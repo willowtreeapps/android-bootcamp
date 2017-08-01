@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Adapts to two view types. Header is placed at the top of the list
- * followed by the forecasts.
+ * Currently just displays forecast data
  */
 public class WeatherDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -31,13 +30,9 @@ public class WeatherDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
      */
     private static final SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE dd", Locale.US);
 
-    private CurrentWeather currentWeather;
-
     private List<WeatherData> forecastData;
 
     private Context context;
-
-    private static final int TYPE_HEADER = 0;
 
     private static final int TYPE_FORECAST = 1;
 
@@ -50,14 +45,10 @@ public class WeatherDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
-            case TYPE_HEADER:
+            case TYPE_FORECAST:
                 return new ForecastViewHolder(LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.weather_item, parent, false));
-            case TYPE_FORECAST:
-                return new HeaderViewHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.weather_current, parent, false));
         }
-
         return null;
     }
 
@@ -65,68 +56,26 @@ public class WeatherDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         if (holder instanceof ForecastViewHolder) {
-            if(forecastData.size() > 0) {
-                ForecastViewHolder forecastViewHolder = (ForecastViewHolder) holder;
-                WeatherData data = forecastData.get(position - 1);
+            ForecastViewHolder forecastViewHolder = (ForecastViewHolder) holder;
+            WeatherData data = forecastData.get(position);
 
-                Drawable drawable = ContextCompat.getDrawable(context, getWeatherIcon(data.weather.get(0).main));
-                forecastViewHolder.icon.setImageDrawable(drawable);
-                forecastViewHolder.date.setText(dayFormat.format(new Date((long) data.timestamp * 1000)));
-                forecastViewHolder.weather.setText(data.weather.get(0).description);
-                forecastViewHolder.high.setText(context.getResources().getString(R.string.temperature, (int) data.temperature.max));
-                forecastViewHolder.low.setText(context.getResources().getString(R.string.temperature, (int) data.temperature.min));
-            }
-        } else if (holder instanceof HeaderViewHolder){
-            HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
-            if(currentWeather != null){
-                Drawable drawable = ContextCompat.getDrawable(context, getWeatherIcon(currentWeather.getWeather().get(0).main));
-                headerViewHolder.icon.setImageDrawable(drawable);
-                headerViewHolder.name.setText(currentWeather.getName());
-                headerViewHolder.weather.setText(currentWeather.getWeather().get(0).main);
-                headerViewHolder.high.setText(context.getResources().getString(R.string.temperature, (int) currentWeather.getMain().temp_max));
-                headerViewHolder.low.setText(context.getResources().getString(R.string.temperature, (int) currentWeather.getMain().temp_min));
-                headerViewHolder.current.setText(context.getResources().getString(R.string.temperature, (int) currentWeather.getMain().temp));
-            }
-        }
-
-    }
-
-    /**
-     * Ref: http://openweathermap.org/weather-conditions
-     *
-     * @param condition weather condition category.
-     * @return icon resource id
-     */
-    public int getWeatherIcon(String condition) {
-        switch (condition.toLowerCase()) {
-            case "clear":
-                return R.drawable.ic_weather_sunny_24dp;
-            case "thunderstorm":
-                return R.drawable.ic_weather_thunderstorms_24dp;
-            case "drizzle":
-                return R.drawable.ic_weather_drizzle_24dp;
-            case "rain":
-                return R.drawable.ic_weather_heavy_rain_24dp;
-            case "clouds":
-                return R.drawable.ic_weather_partly_cloudy_24dp;
-            default:
-                return R.drawable.ic_weather_alert_24dp;
+            Drawable drawable = ContextCompat.getDrawable(context, UiUtils.getWeatherIconResId(data.weather.get(0).main));
+            forecastViewHolder.icon.setImageDrawable(drawable);
+            forecastViewHolder.date.setText(dayFormat.format(new Date((long) data.timestamp * 1000)));
+            forecastViewHolder.weather.setText(data.weather.get(0).description);
+            forecastViewHolder.high.setText(context.getResources().getString(R.string.temperature, (int) data.temperature.max));
+            forecastViewHolder.low.setText(context.getResources().getString(R.string.temperature, (int) data.temperature.min));
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        return position != 0 ? TYPE_HEADER : TYPE_FORECAST;
+        return TYPE_FORECAST;
     }
 
     @Override
     public int getItemCount() {
-        return forecastData.size() + 1;
-    }
-
-    public void setCurrentWeather(CurrentWeather currentWeather) {
-        this.currentWeather = currentWeather;
-        notifyDataSetChanged();
+        return forecastData.size();
     }
 
     public void setForecast(Forecast forecast) {
@@ -154,31 +103,6 @@ public class WeatherDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             weather = (TextView) itemView.findViewById(R.id.weather_desc);
             high = (TextView) itemView.findViewById(R.id.temp_high);
             low = (TextView) itemView.findViewById(R.id.temp_low);
-        }
-    }
-
-    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
-
-        ImageView icon;
-
-        TextView name;
-
-        TextView weather;
-
-        TextView high;
-
-        TextView low;
-
-        TextView current;
-
-        public HeaderViewHolder(View itemView) {
-            super(itemView);
-            icon = (ImageView) itemView.findViewById(R.id.header_weather_icon);
-            name = (TextView) itemView.findViewById(R.id.city_name);
-            current = (TextView) itemView.findViewById(R.id.current_temp);
-            weather = (TextView) itemView.findViewById(R.id.header_weather_desc);
-            high = (TextView) itemView.findViewById(R.id.header_temp_high);
-            low = (TextView) itemView.findViewById(R.id.header_temp_low);
         }
     }
 }

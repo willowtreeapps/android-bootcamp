@@ -34,27 +34,39 @@ public class WeatherAppPresenter implements Presenter {
         weatherService.loadCurrent(weatherAppView.getCity(), new Callback<CurrentWeather>() {
             @Override
             public void onResponse(Call<CurrentWeather> call, Response<CurrentWeather> response) {
-                weatherAppView.setCurrentWeather(response.body());
+                if (response.body() == null) {
+                    failFetchingWeather();
+                } else {
+                    weatherAppView.setCurrentWeather(response.body());
+                }
             }
 
             @Override
             public void onFailure(Call<CurrentWeather> call, Throwable t) {
-                weatherAppView.displayError("Something went wrong when loading current weather.");
+                failFetchingWeather();
             }
         });
 
         weatherService.loadForecast(weatherAppView.getCity(), new Callback<Forecast>() {
             @Override
             public void onResponse(Call<Forecast> call, Response<Forecast> response) {
-                weatherAppView.setForecast(response.body());
+                if (response.body() == null) {
+                    failFetchingWeather();
+                } else {
+                    weatherAppView.setForecast(response.body());
+                }
             }
 
             @Override
             public void onFailure(Call<Forecast> call, Throwable t) {
-                weatherAppView.displayError("Something went wrong when loading weather forecast.");
+                failFetchingWeather();
             }
         });
 
+    }
+
+    private void failFetchingWeather() {
+        weatherAppView.displayError("Something went wrong when loading weather forecast.");
     }
 
 }

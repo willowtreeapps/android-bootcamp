@@ -2,4 +2,8 @@
     <string name="app_name">WeatherApp</string>
     <string name="action_settings">Settings</string>
     <string name="temperature">%d°</string>
+    <string name="title_activity_forecast">ForecastActivity</string>
+    <string name="enter_zipcode">Enter your zipcode</string>
+    <string name="get_weather">Get Weather</string>
+    <string name="view_forecast">View Forecast</string>
 </resources>
